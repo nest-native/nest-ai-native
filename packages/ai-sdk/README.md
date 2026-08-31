@@ -253,6 +253,13 @@ SDK's secret-safe default (`'An error occurred.'`) is used, so raw provider
 errors — which may contain credentials — never reach the client. **Only ever map
 to vetted, non-sensitive messages.**
 
+The mapper guards the wire, not your logs. The raw error stays server-side, and
+`streamText`'s own `onError` option — a different callback that happens to share
+the name — defaults to `console.error(error)`, printing the provider error
+verbatim. Client-safe and log-safe are separate concerns: configure redacted,
+structured error logging in the application, and never assume `@AiStream`'s
+`onError` keeps credentials out of your logs.
+
 > The `text` format has no error frame: `pipeTextStreamToResponse` accepts only
 > status/headers and silently drops non-text events, so `onError` is ignored for
 > `format: 'text'`. Use the default `ui-message` format when you need in-stream

@@ -69,7 +69,9 @@ trying to wrap the response.
 
 Set a module-wide `onError` mapper so mid-stream failures emit a stable,
 non-sensitive message rather than the AI SDK's generic default. Never surface raw
-provider errors. See [Error Mapping](error-mapping.md).
+provider errors. The mapper covers the wire only — the raw error still reaches
+your logs, so pair it with redacted error logging. See
+[Error Mapping](error-mapping.md).
 
 ```ts
 AiModule.forRoot({
@@ -84,6 +86,7 @@ AiModule.forRoot({
 - [ ] Rate-limit with a guard so over-limit is a pre-stream `429`.
 - [ ] Validate input with a pipe so bad input is a pre-stream `400`.
 - [ ] Set a module-wide `onError` that only emits vetted messages.
+- [ ] Redact errors in your logger too — `onError` does not sanitize logs.
 - [ ] Keep response-transform interceptors off streaming routes.
 
 See [Security](security.md) for the auth and secret-leakage angle.

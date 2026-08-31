@@ -28,6 +28,11 @@ rules:
    errors, which can contain credentials. See [Error Mapping](error-mapping.md).
 2. **Never echo configuration into the stream.** Do not write headers, env vars,
    or model configuration into the streamed body.
+3. **Client-safe is not log-safe.** The mapper only controls what goes on the
+   wire. The raw provider error stays server-side — `streamText`'s own `onError`
+   option defaults to `console.error(error)` — so redacted, structured error
+   logging is the application's job, not the mapper's. See
+   [Error Mapping](error-mapping.md).
 
 ## Prompt Injection
 

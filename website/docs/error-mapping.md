@@ -53,6 +53,28 @@ AiModule.forRoot({
 
 A method-level `onError` overrides the module default for that route.
 
+## Client-Safe Is Not Log-Safe
+
+`onError` decides what the **client** sees. It is not a redaction boundary for
+your logs — the raw error object still exists server-side, and by default
+something writes it out verbatim:
+
+- `streamText` has its own `onError` option, unrelated to `@AiStream`'s and
+  easily confused with it, whose default is `({ error }) => console.error(error)`.
+  Left alone it prints the untouched provider error — endpoint, request payload,
+  sometimes credentials — no matter how conservative your stream mapper is.
+- Logging from inside the `@AiStream` mapper (`onError: (error) => { ... }`)
+  hands your logger that same raw error.
+- A pre-stream failure never reaches a mapper at all: it becomes an HTTP error,
+  and Nest's default exception layer logs the stack.
+
+Client-safe messages and log-safe records are separate concerns, and only the
+first is the package's to solve. Configure structured, redacted error logging in
+the application — pass an explicit `onError` to the AI SDK call, log a sanitized
+shape rather than the error object, and keep provider payloads out of whatever
+ships those logs. Never rely on the stream mapper to keep secrets out of your
+logs.
+
 ## Format Caveat
 
 Only the `ui-message` format defines an error frame. The `text` format's
